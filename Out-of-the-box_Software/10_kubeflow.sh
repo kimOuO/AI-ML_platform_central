@@ -28,11 +28,11 @@ echo ""
 # Download kubeflow and kustomize
 git clone https://github.com/kubeflow/manifests.git
 cd manifests
-git checkout v1.9.0
-wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.2.1/kustomize_v5.2.1_linux_amd64.tar.gz
+git checkout v1.10-branch
+wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.4.3/kustomize_v5.4.3_linux_amd64.tar.gz
 
 # Unzip kustomize and Configure kustomize
-tar -xzvf kustomize_v5.2.1_linux_amd64.tar.gz
+tar -xzvf kustomize_v5.4.3_linux_amd64.tar.gz
 chmod 777 kustomize
 mv kustomize /usr/bin/kustomize
 
