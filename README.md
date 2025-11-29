@@ -44,9 +44,7 @@
 ### 2. **IP 需改成你自己的 IP**
 所有腳本中的：
 - `CENTRAL_STORAGE_IP`
-- `HARBOR_PROXY_REGISTRY`
-- `HARBOR_CONTAINER_PORT`
-- `NodePort` 服務 IP  
+- `CENTRAL_HOST_IP`
 都需要修改成你的環境設定。
 
 ### 3. **Harbor Proxy Cache 已更新**
