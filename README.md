@@ -66,12 +66,12 @@
   # =====================================================
   # Build Out-of-the-box Software
   # =====================================================
-```bash
+bash
   bash Out-of-the-box_Software/init.sh
 
   # =====================================================
   # Build Out-of-the-box Software
   # =====================================================
-```bash
+bash
   bash Custom_Software/init.sh
 
