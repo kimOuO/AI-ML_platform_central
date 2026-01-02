@@ -44,14 +44,14 @@ echo ""
 
 
 #############################################################################
-# helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 
-# # 這裡改成「寫死」的 IP + 路徑
-# helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-#   --create-namespace \
-#   --namespace nfs-provisioner \
-#   --set nfs.server=${CENTRAL_STORAGE_IP} \
-#   --set nfs.path=${NFS_SERVER_PATH}
+# 這裡改成「寫死」的 IP + 路徑
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+  --create-namespace \
+  --namespace nfs-provisioner \
+  --set nfs.server=${CENTRAL_STORAGE_IP} \
+  --set nfs.path=${NFS_SERVER_PATH}
 #############################################################################
 
 
@@ -63,24 +63,24 @@ echo "============================================================"
 
 # 等待 nfs-client StorageClass 建立（最多等 30 次，每次 5 秒）
 #################################################################################
-# for i in {1..30}; do
-#   if kubectl get sc nfs-client >/dev/null 2>&1; then
-#     echo "[INFO] 找到 StorageClass nfs-client"
-#     break
-#   fi
-#   echo "[INFO] 等待 nfs-client StorageClass 建立中 (${i}/30)..."
-#   sleep 5
-# done
+for i in {1..30}; do
+  if kubectl get sc nfs-client >/dev/null 2>&1; then
+    echo "[INFO] 找到 StorageClass nfs-client"
+    break
+  fi
+  echo "[INFO] 等待 nfs-client StorageClass 建立中 (${i}/30)..."
+  sleep 5
+done
 
-# # 將 nfs-client 設為 default StorageClass（若失敗只印 WARNING，不中斷整個腳本）
-# if kubectl get sc nfs-client >/dev/null 2>&1; then
-#   kubectl patch storageclass nfs-client \
-#     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
-#     && echo "[INFO] 已將 nfs-client 設為預設 StorageClass" \
-#     || echo "[WARN] 設定 nfs-client 為預設 StorageClass 失敗，請手動檢查"
-# else
-#   echo "[WARN] 仍然找不到 StorageClass nfs-client，PVC 可能會卡 Pending，請手動檢查"
-# fi
+# 將 nfs-client 設為 default StorageClass（若失敗只印 WARNING，不中斷整個腳本）
+if kubectl get sc nfs-client >/dev/null 2>&1; then
+  kubectl patch storageclass nfs-client \
+    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
+    && echo "[INFO] 已將 nfs-client 設為預設 StorageClass" \
+    || echo "[WARN] 設定 nfs-client 為預設 StorageClass 失敗，請手動檢查"
+else
+  echo "[WARN] 仍然找不到 StorageClass nfs-client，PVC 可能會卡 Pending，請手動檢查"
+fi
 #################################################################################
 # ================== NFS 區塊結束 ================================================================
 
