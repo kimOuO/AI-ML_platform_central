@@ -10,7 +10,7 @@ source ../Environmental_Variables/.env.common
 # 0.1 設定兩個 Harbor Registry
 # ============================================================
 # 1) Kubeflow 用的 Harbor Proxy Cache（改寫 ghcr.io → 這個 registry）
-HARBOR_PROXY_HOST="140.118.162.139:35301"
+HARBOR_PROXY_HOST="140.118.122.151:37101"
 
 # 2) 訓練用 image 所在的 Harbor（例如 140.118.162.95:32000 這種）
 TRAIN_REGISTRY_HOST="${CENTRAL_STORAGE_IP}:${HARBOR_CONTAINER_PORT}"

@@ -17,11 +17,11 @@ KFP_NAMESPACE="kubeflow"
 # ============================================================
 # 之後所有 kustomize build 出來的 YAML，只要有 ghcr.io/ 開頭的 image，
 # 都會被 rewrite 成：${HARBOR_PROXY_REGISTRY}/...
-HARBOR_PROXY_REGISTRY="${HARBOR_PROXY_REGISTRY:-140.118.162.139:35301/ghcr}"
+HARBOR_PROXY_REGISTRY="${HARBOR_PROXY_REGISTRY:-140.118.122.151:37101/kubeflow}"
 
 rewrite_ghcr_to_harbor() {
   # 把 YAML 裡所有 ghcr.io/... 改成 ${HARBOR_PROXY_REGISTRY}/...
-  sed "s#ghcr.io/#${HARBOR_PROXY_REGISTRY}/#g"
+  sed "s#kubeflow.io/#${HARBOR_PROXY_REGISTRY}/#g"
 }
 
 kf_apply() {
@@ -40,14 +40,21 @@ echo ""
 # ------------------------------------------------------------
 # 1. 安裝 NFS Subdir External Provisioner
 # ------------------------------------------------------------
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 
-# 這裡改成「寫死」的 IP + 路徑
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-  --create-namespace \
-  --namespace nfs-provisioner \
-  --set nfs.server=${CENTRAL_STORAGE_IP} \
-  --set nfs.path=${NFS_SERVER_PATH}
+
+
+#############################################################################
+# helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+
+# # 這裡改成「寫死」的 IP + 路徑
+# helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+#   --create-namespace \
+#   --namespace nfs-provisioner \
+#   --set nfs.server=${CENTRAL_STORAGE_IP} \
+#   --set nfs.path=${NFS_SERVER_PATH}
+#############################################################################
+
+
 
 # ================== 設定 nfs-client 為預設 StorageClass，避免 PVC Pending ==================
 echo "============================================================"
@@ -55,24 +62,26 @@ echo "[NFS] 設定 nfs-client 為預設 StorageClass，避免 PVC 沒指定時�
 echo "============================================================"
 
 # 等待 nfs-client StorageClass 建立（最多等 30 次，每次 5 秒）
-for i in {1..30}; do
-  if kubectl get sc nfs-client >/dev/null 2>&1; then
-    echo "[INFO] 找到 StorageClass nfs-client"
-    break
-  fi
-  echo "[INFO] 等待 nfs-client StorageClass 建立中 (${i}/30)..."
-  sleep 5
-done
+#################################################################################
+# for i in {1..30}; do
+#   if kubectl get sc nfs-client >/dev/null 2>&1; then
+#     echo "[INFO] 找到 StorageClass nfs-client"
+#     break
+#   fi
+#   echo "[INFO] 等待 nfs-client StorageClass 建立中 (${i}/30)..."
+#   sleep 5
+# done
 
-# 將 nfs-client 設為 default StorageClass（若失敗只印 WARNING，不中斷整個腳本）
-if kubectl get sc nfs-client >/dev/null 2>&1; then
-  kubectl patch storageclass nfs-client \
-    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
-    && echo "[INFO] 已將 nfs-client 設為預設 StorageClass" \
-    || echo "[WARN] 設定 nfs-client 為預設 StorageClass 失敗，請手動檢查"
-else
-  echo "[WARN] 仍然找不到 StorageClass nfs-client，PVC 可能會卡 Pending，請手動檢查"
-fi
+# # 將 nfs-client 設為 default StorageClass（若失敗只印 WARNING，不中斷整個腳本）
+# if kubectl get sc nfs-client >/dev/null 2>&1; then
+#   kubectl patch storageclass nfs-client \
+#     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
+#     && echo "[INFO] 已將 nfs-client 設為預設 StorageClass" \
+#     || echo "[WARN] 設定 nfs-client 為預設 StorageClass 失敗，請手動檢查"
+# else
+#   echo "[WARN] 仍然找不到 StorageClass nfs-client，PVC 可能會卡 Pending，請手動檢查"
+# fi
+#################################################################################
 # ================== NFS 區塊結束 ================================================================
 
 echo "##############################################################"
@@ -424,5 +433,5 @@ kf_apply applications/tensorboard/tensorboard-controller/upstream/overlays/kubef
 kf_apply applications/tensorboard/tensorboards-web-app/upstream/overlays/istio
 
 echo "============================================================"
-echo "[DONE] Kubeflow with Harbor Proxy (GHCR → ${HARBOR_PROXY_REGISTRY}) + MySQL 修復流程完成"
+echo "[DONE] Kubeflow with Harbor Proxy (kubeflow → ${HARBOR_PROXY_REGISTRY}) + MySQL 修復流程完成"
 echo "============================================================"
